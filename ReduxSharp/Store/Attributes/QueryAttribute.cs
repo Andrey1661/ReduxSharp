@@ -2,16 +2,14 @@
 
 namespace ReduxSharp.Store.Attributes
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter)]
 	public class QueryAttribute : Attribute
 	{
 		public Type MarkerType { get; }
-		public Type[] Dependencies { get; }
 
-		public QueryAttribute(Type markerType, params Type[] dependencies)
+		public QueryAttribute(Type markerType)
 		{
 			MarkerType = markerType;
-			Dependencies = dependencies;
 		}
 	}
 }

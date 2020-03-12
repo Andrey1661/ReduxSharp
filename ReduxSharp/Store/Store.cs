@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
@@ -8,17 +7,14 @@ using ReduxSharp.Store.Selectors;
 
 namespace ReduxSharp.Store
 {
-	public class Store<TState> where TState : class, new()
+	public class Store<TState> where TState : class, ICloneable, new()
 	{
-		private readonly Dictionary<Type, object> _selectors;
-		private readonly Dictionary<Type, Action<object>> _reducers;
 		private readonly BehaviorSubject<TState> _observableState;
 
-		public Store(TState initialState = null)
+		public Store(Assembly assembly, TState initialState = null)
 		{
-			var assemebly = Assembly.GetCallingAssembly();
-			_selectors = SelectorFactory.CreateSelectors(assemebly);
-			_reducers = ActionFactory.CreateActions(assemebly, this);
+			SelectorFactory.CreateSelectors(assembly, typeof(TState));
+			ActionFactory.CreateActions(assembly, this);
 			_observableState = new BehaviorSubject<TState>(initialState ?? new TState());
 		}
 
@@ -32,27 +28,35 @@ namespace ReduxSharp.Store
 			return selector.Apply(_observableState);
 		}
 
-		public IObservable<TResult> Select<TResult>(SelectorMarker<TResult> marker)
+		public IObservable<TResult> Select<TResult>(IQuery<TResult> selector)
 		{
-			return GetSelectorFromMarker(marker).Apply(_observableState);
+			return GetSelector(selector).Apply(_observableState);
 		}
 
-		public TResult Snapshot<TResult>(ISelector<TState, TResult> selector)
+		internal TResult Snapshot<TResult>(ISelector<TState, TResult> selector)
 		{
 			bool hasValue = _observableState.TryGetValue(out var value);
 			return selector.Apply(hasValue ? value : null);
 		}
 
-		public TResult Snapshot<TResult>(SelectorMarker<TResult> marker)
+		public TState Snapshot()
+		{
+			return _observableState.Value;
+		}
+
+		public TResult Snapshot<TResult>(IQuery<TResult> selector)
 		{
 			bool hasValue = _observableState.TryGetValue(out var value);
-			return GetSelectorFromMarker(marker).Apply(hasValue ? value : default(TState));
+			return GetSelector(selector).Apply(hasValue ? value : default(TState));
 		}
 
 		public void Dispatch<T>(IAction<T> action)
 		{
-			var reducer = _reducers[action.GetType()];
-			reducer(action);
+			var reducers = ExchangeStorage.ActionHandlers[action.GetType()];
+			foreach (var reducer in reducers)
+			{
+				reducer(action);
+			}
 		}
 
 		internal TState GetState()
@@ -65,9 +69,9 @@ namespace ReduxSharp.Store
 			_observableState.OnNext(state);
 		}
 
-		private ISelector<TState, TResult> GetSelectorFromMarker<TResult>(SelectorMarker<TResult> marker)
+		private ISelector<TState, TResult> GetSelector<TResult>(IQuery<TResult> marker)
 		{
-			return (ISelector<TState, TResult>) _selectors[marker.GetType()];
+			return (ISelector<TState, TResult>) ExchangeStorage.Selectors[marker.GetType()];
 		}
 	}
 }

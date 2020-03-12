@@ -3,6 +3,19 @@ using System.Reactive.Linq;
 
 namespace ReduxSharp.Store.Selectors
 {
+	internal class Selector<TState> : ISelector<TState, TState>
+	{
+		public TState Apply(TState arg)
+		{
+			return arg;
+		}
+
+		public IObservable<TState> Apply(IObservable<TState> arg)
+		{
+			return arg.DistinctUntilChanged();
+		}
+	}
+
 	internal class Selector<TState, TResult> : ISelector<TState, TResult>
 	{
 		private readonly Func<TState, TResult> _selectorFunc;
