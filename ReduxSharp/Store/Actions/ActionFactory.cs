@@ -10,9 +10,10 @@ namespace ReduxSharp.Store.Actions
 {
 	internal static class ActionFactory
 	{
-		internal static void CreateActions<TRoot>(Assembly assembly, Store<TRoot> store) where TRoot : class, ICloneable, new()
+		internal static void CreateActions<TRoot>(Store<TRoot> store) where TRoot : class, ICloneable, new()
 		{
-			var stateTypes = assembly.DefinedTypes.Where(type => type.GetCustomAttribute<StateAttribute>() != null);
+			var rootType = typeof(TRoot);
+			var stateTypes = rootType.Assembly.DefinedTypes.Where(type => type.GetCustomAttribute<StateAttribute>() != null);
 			var result = new List<(Type type, Action<object> actions)>();
 
 			foreach (var stateType in stateTypes)
@@ -40,7 +41,7 @@ namespace ReduxSharp.Store.Actions
 				}
 			}
 
-			ExchangeStorage.ActionHandlers = result.ToLookup(pair => pair.type, pair => pair.actions);
+			store.Context.ActionHandlers = result.ToLookup(pair => pair.type, pair => pair.actions);
 		}
 
 		private static object CreateContext<TRoot>(Store<TRoot> store, Type stateType)
@@ -58,13 +59,13 @@ namespace ReduxSharp.Store.Actions
 			else
 			{
 				contextType = typeof(StateContext<,>).MakeGenericType(rootType, stateType);
-				if (!ExchangeStorage.Selectors.ContainsKey(stateType))
+				if (!store.Context.Selectors.ContainsKey(stateType))
 				{
-					ExchangeStorage.Selectors.Add(stateType, SelectorFactory.CreateRootSelector(rootType, stateType));
+					store.Context.Selectors.Add(stateType, SelectorFactory.CreateRootSelector(rootType, stateType));
 				}
 
-				var rootSelector = ExchangeStorage.Selectors[stateType];
-				var assignDelegate = GetOrCreateAssignFunction(rootType, stateType);
+				var rootSelector = store.Context.Selectors[stateType];
+				var assignDelegate = GetOrCreateAssignFunction(store.Context, rootType, stateType);
 				parameters = new[] {store, rootSelector, assignDelegate};
 			}
 
@@ -77,15 +78,15 @@ namespace ReduxSharp.Store.Actions
 			);
 		}
 
-		private static Delegate GetOrCreateAssignFunction(Type rootType, Type stateType)
+		private static Delegate GetOrCreateAssignFunction(StoreContext context, Type rootType, Type stateType)
 		{
-			if (ExchangeStorage.RootAssignFunctions.TryGetValue(stateType, out var del))
+			if (context.RootAssignFunctions.TryGetValue(stateType, out var del))
 			{
 				return del;
 			}
 
 			var assignDelegate = CreateAssignFunction(rootType, stateType);
-			ExchangeStorage.RootAssignFunctions.Add(stateType, assignDelegate);
+			context.RootAssignFunctions.Add(stateType, assignDelegate);
 			return assignDelegate;
 		}
 

@@ -10,13 +10,17 @@ namespace ReduxSharp.Store
 	{
 		private readonly BehaviorSubject<TState> _observableState;
 
+		internal StoreContext Context { get; }
+
 		public Store(TState initialState = null)
 		{
-			var assembly = typeof(TState).Assembly;
-			SelectorFactory.CreateSelectors(assembly, typeof(TState));
-			ActionFactory.CreateActions(assembly, this);
+			Context = new StoreContext();
+			SelectorFactory.CreateSelectors(this);
+			ActionFactory.CreateActions(this);
 			_observableState = new BehaviorSubject<TState>(initialState ?? new TState());
 		}
+
+		#region public methdos
 
 		public IObservable<TState> Select()
 		{
@@ -33,12 +37,6 @@ namespace ReduxSharp.Store
 			return GetSelector(selector).Apply(_observableState);
 		}
 
-		internal TResult Snapshot<TResult>(ISelector<TState, TResult> selector)
-		{
-			bool hasValue = _observableState.TryGetValue(out var value);
-			return selector.Apply(hasValue ? value : null);
-		}
-
 		public TState Snapshot()
 		{
 			return _observableState.Value;
@@ -46,17 +44,25 @@ namespace ReduxSharp.Store
 
 		public TResult Snapshot<TResult>(IQuery<TResult> selector)
 		{
-			bool hasValue = _observableState.TryGetValue(out var value);
-			return GetSelector(selector).Apply(hasValue ? value : default(TState));
+			return GetSelector(selector).Apply(_observableState.Value);
 		}
 
 		public void Dispatch<T>(IAction<T> action)
 		{
-			var reducers = ExchangeStorage.ActionHandlers[action.GetType()];
+			var reducers = Context.ActionHandlers[action.GetType()];
 			foreach (var reducer in reducers)
 			{
 				reducer(action);
 			}
+		}
+
+		#endregion
+
+		#region internal methods
+
+		internal TResult Snapshot<TResult>(ISelector<TState, TResult> selector)
+		{
+			return selector.Apply(_observableState.Value);
 		}
 
 		internal TState GetState()
@@ -69,9 +75,15 @@ namespace ReduxSharp.Store
 			_observableState.OnNext(state);
 		}
 
-		private static ISelector<TState, TResult> GetSelector<TResult>(IQuery<TResult> marker)
+		#endregion
+
+		#region private methods
+
+		private ISelector<TState, TResult> GetSelector<TResult>(IQuery<TResult> marker)
 		{
-			return (ISelector<TState, TResult>) ExchangeStorage.Selectors[marker.GetType()];
+			return (ISelector<TState, TResult>) Context.Selectors[marker.GetType()];
 		}
+
+		#endregion
 	}
 }
