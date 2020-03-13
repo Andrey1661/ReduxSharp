@@ -29,7 +29,7 @@ namespace ReduxSharp.Store.Selectors
 				{
 					var parameters = method.GetParameters();
 
-					List<Type> genericTypes = new List<Type>();
+					List<Type> genericTypes = new List<Type> {rootType};
 					List<Type> inputTypes = new List<Type>();
 					List<object> args = new List<object>();
 
@@ -55,11 +55,6 @@ namespace ReduxSharp.Store.Selectors
 								args.Add(selectors[paramQueryType]);
 							}
 							break;
-					}
-
-					if (genericTypes.FirstOrDefault() != rootType)
-					{
-						genericTypes.Insert(0, rootType);
 					}
 
 					inputTypes.Add(method.ReturnType);

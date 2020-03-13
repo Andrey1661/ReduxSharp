@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ReduxSharp.Store;
 using ReduxSharp.TestSet1;
 using ReduxSharp.TestSet1.Array;
@@ -9,11 +10,11 @@ using Xunit;
 
 namespace ReduxSharp.Tests
 {
-	public class SelectorFactoryTest
+	public class ModuledStateTests
 	{
-		private Store<AppStateModel> CreateStore()
+		private Store<AppStateModel1> CreateStore()
 		{
-			var state = new AppStateModel(
+			var state = new AppStateModel1(
 				new CounterStateModel(2),
 				new ArrayStateModel(new[] {"name0", "name1", "name2", "name3"}),
 				new ConfigStateModel(new Dictionary<string, object>
@@ -22,7 +23,7 @@ namespace ReduxSharp.Tests
 					{"key2", "value2"}
 				})
 			);
-			return new Store<AppStateModel>(state);
+			return new Store<AppStateModel1>(state);
 		}
 
 		[Fact]
@@ -32,9 +33,11 @@ namespace ReduxSharp.Tests
 
 			int counter = 0;
 			string name = null;
+			string[] names = null;
 
 			store.Select(new CounterQuery.GetValue()).Subscribe(c => counter = c);
 			store.Select(new ArrayQuery.GetName()).Subscribe(n => name = n);
+			store.Select(new ArrayQuery.GetNames()).Subscribe(n => names = n);
 
 			Assert.Equal(2, counter);
 			Assert.Equal("name2", name);
@@ -43,6 +46,12 @@ namespace ReduxSharp.Tests
 
 			Assert.Equal(0, counter);
 			Assert.Equal("name0", name);
+
+			var reversed = names.Reverse().ToArray();
+			store.Dispatch(new ArrayState.SetNames(reversed));
+
+			Assert.Equal(reversed, names);
+			Assert.Equal("name3", name);
 		}
 	}
 }

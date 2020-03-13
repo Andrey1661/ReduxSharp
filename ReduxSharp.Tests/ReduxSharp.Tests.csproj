@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ReduxSharp.TestSet1\ReduxSharp.TestSet1.csproj" />
+    <ProjectReference Include="..\ReduxSharp.TestSet2\ReduxSharp.TestSet2.csproj" />
     <ProjectReference Include="..\ReduxSharp\ReduxSharp.csproj" />
   </ItemGroup>
 

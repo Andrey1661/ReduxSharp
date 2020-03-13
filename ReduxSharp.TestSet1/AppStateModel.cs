@@ -5,9 +5,9 @@ using ReduxSharp.TestSet1.Counter;
 
 namespace ReduxSharp.TestSet1
 {
-	public class AppStateModel : ICloneable
+	public class AppStateModel1 : ICloneable
 	{
-		public AppStateModel()
+		public AppStateModel1()
 		{
 			Value = null;
 			Counter = new CounterStateModel();
@@ -15,7 +15,7 @@ namespace ReduxSharp.TestSet1
 			Config = new ConfigStateModel();
 		}
 
-		public AppStateModel(CounterStateModel counter, ArrayStateModel array, ConfigStateModel config)
+		public AppStateModel1(CounterStateModel counter, ArrayStateModel array, ConfigStateModel config)
 		{
 			Counter = counter;
 			Array = array;
@@ -29,7 +29,7 @@ namespace ReduxSharp.TestSet1
 
 		public object Clone()
 		{
-			return new AppStateModel(Counter, Array, Config);
+			return new AppStateModel1(Counter, Array, Config);
 		}
 	}
 }
