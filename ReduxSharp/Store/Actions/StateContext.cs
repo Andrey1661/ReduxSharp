@@ -15,6 +15,11 @@ namespace ReduxSharp.Store.Actions
 	{
 		private readonly Store<TRoot> _store;
 
+		public StateContext(Store<TRoot> store)
+		{
+			_store = store;
+		}
+
 		public TRoot GetState()
 		{
 			return _store.Snapshot();
@@ -22,7 +27,7 @@ namespace ReduxSharp.Store.Actions
 
 		public void SetState(TRoot state)
 		{
-			throw new NotImplementedException();
+			_store.SetState(state);
 		}
 	}
 
@@ -32,12 +37,12 @@ namespace ReduxSharp.Store.Actions
 	{
 		private readonly Store<TRoot> _store;
 		private readonly ISelector<TRoot, TState> _selector;
-		private readonly Func<TState, TRoot> _assignDelegate;
+		private readonly Func<TRoot, TState, TRoot> _assignDelegate;
 
-		internal StateContext(
+		public StateContext(
 			Store<TRoot> store,
 			ISelector<TRoot, TState> selector,
-			Func<TState, TRoot> assignDelegate)
+			Func<TRoot, TState, TRoot> assignDelegate)
 		{
 			_store = store;
 			_selector = selector;
@@ -51,7 +56,7 @@ namespace ReduxSharp.Store.Actions
 
 		public void SetState(TState state)
 		{
-			var root = _assignDelegate(state);
+			var root = _assignDelegate(_store.GetState(), state);
 			_store.SetState(root);
 		}
 	}

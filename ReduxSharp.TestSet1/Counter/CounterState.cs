@@ -3,7 +3,7 @@ using ReduxSharp.Store.Attributes;
 
 namespace ReduxSharp.TestSet1.Counter
 {
-	[State]
+	[State(typeof(CounterStateModel))]
 	public partial class CounterState
 	{
 		[Action(typeof(SetCounter))]

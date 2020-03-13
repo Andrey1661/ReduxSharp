@@ -22,7 +22,7 @@ namespace ReduxSharp.Tests
 					{"key2", "value2"}
 				})
 			);
-			return new Store<AppStateModel>(typeof(AppStateModel).Assembly, state);
+			return new Store<AppStateModel>(state);
 		}
 
 		[Fact]

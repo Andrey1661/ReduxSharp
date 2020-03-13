@@ -18,6 +18,7 @@ namespace ReduxSharp.TestSet1.Array
 			return state.Names;
 		}
 
+		[Query(typeof(GetName))]
 		public static string OnGetName(
 			[Query(typeof(GetNames))] string[] names,
 			[Query(typeof(CounterQuery.GetValue))] int index)

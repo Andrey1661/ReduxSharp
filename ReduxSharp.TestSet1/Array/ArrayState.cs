@@ -4,7 +4,7 @@ using ReduxSharp.Store.Attributes;
 
 namespace ReduxSharp.TestSet1.Array
 {
-	[State]
+	[State(typeof(ArrayStateModel))]
 	public partial class ArrayState
 	{
 		[Action(typeof(SetNames))]

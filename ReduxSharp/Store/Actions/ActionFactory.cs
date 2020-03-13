@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using ReduxSharp.Store.Attributes;
+using ReduxSharp.Store.Selectors;
 
 namespace ReduxSharp.Store.Actions
 {
@@ -16,14 +17,19 @@ namespace ReduxSharp.Store.Actions
 
 			foreach (var stateType in stateTypes)
 			{
-				var contextInstance = CreateContext(store, stateType);
-				var contextType = contextInstance.GetType();
+				var stateInstance = Activator.CreateInstance(stateType);
+				var stateAttr = stateType.GetCustomAttribute<StateAttribute>();
+				var contextInstance = CreateContext(store, stateAttr.StateType);
+				var contextType = contextInstance.GetType().GetInterfaces().First();
 
 				foreach (var method in stateType.DeclaredMethods.Where(m => m.IsPublic && m.GetCustomAttribute<ActionAttribute>() != null))
 				{
 					var attr = method.GetCustomAttribute<ActionAttribute>();
-					var delegateType = typeof(Action<,>).MakeGenericType(contextType, attr.ActionType);
-					var del = Delegate.CreateDelegate(delegateType, contextInstance, method);
+					var isGeneric = attr.ActionType.GetInterfaces().First().IsGenericType;
+					var delegateType = isGeneric
+						? typeof(Action<,>).MakeGenericType(contextType, attr.ActionType)
+						: typeof(Action<>).MakeGenericType(contextType);
+					var del = Delegate.CreateDelegate(delegateType, stateInstance, method);
 
 					result.Add((attr.ActionType, Handler));
 
@@ -52,6 +58,11 @@ namespace ReduxSharp.Store.Actions
 			else
 			{
 				contextType = typeof(StateContext<,>).MakeGenericType(rootType, stateType);
+				if (!ExchangeStorage.Selectors.ContainsKey(stateType))
+				{
+					ExchangeStorage.Selectors.Add(stateType, SelectorFactory.CreateRootSelector(rootType, stateType));
+				}
+
 				var rootSelector = ExchangeStorage.Selectors[stateType];
 				var assignDelegate = GetOrCreateAssignFunction(rootType, stateType);
 				parameters = new[] {store, rootSelector, assignDelegate};
@@ -59,7 +70,7 @@ namespace ReduxSharp.Store.Actions
 
 			return Activator.CreateInstance(
 				contextType,
-				BindingFlags.NonPublic | BindingFlags.Instance,
+				BindingFlags.Public | BindingFlags.Instance,
 				null,
 				parameters,
 				null
@@ -80,7 +91,7 @@ namespace ReduxSharp.Store.Actions
 
 		private static Delegate CreateAssignFunction(Type rootType, Type stateType)
 		{
-			var constr = rootType.GetConstructors(BindingFlags.Public)
+			var constr = rootType.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
 				.OrderByDescending(c => c.GetParameters().Length)
 				.First();
 			var properties = rootType.GetProperties(BindingFlags.Public | BindingFlags.Instance);

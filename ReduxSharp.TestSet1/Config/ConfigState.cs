@@ -4,7 +4,7 @@ using ReduxSharp.Store.Attributes;
 
 namespace ReduxSharp.TestSet1.Config
 {
-	[State]
+	[State(typeof(ConfigStateModel))]
 	public partial class ConfigState
 	{
 		[Action(typeof(SetConfig))]

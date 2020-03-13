@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reflection;
 using ReduxSharp.Store.Actions;
 using ReduxSharp.Store.Selectors;
 
@@ -11,8 +10,9 @@ namespace ReduxSharp.Store
 	{
 		private readonly BehaviorSubject<TState> _observableState;
 
-		public Store(Assembly assembly, TState initialState = null)
+		public Store(TState initialState = null)
 		{
+			var assembly = typeof(TState).Assembly;
 			SelectorFactory.CreateSelectors(assembly, typeof(TState));
 			ActionFactory.CreateActions(assembly, this);
 			_observableState = new BehaviorSubject<TState>(initialState ?? new TState());
@@ -69,7 +69,7 @@ namespace ReduxSharp.Store
 			_observableState.OnNext(state);
 		}
 
-		private ISelector<TState, TResult> GetSelector<TResult>(IQuery<TResult> marker)
+		private static ISelector<TState, TResult> GetSelector<TResult>(IQuery<TResult> marker)
 		{
 			return (ISelector<TState, TResult>) ExchangeStorage.Selectors[marker.GetType()];
 		}

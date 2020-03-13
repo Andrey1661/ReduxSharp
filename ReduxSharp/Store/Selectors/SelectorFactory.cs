@@ -9,7 +9,7 @@ namespace ReduxSharp.Store.Selectors
 {
 	internal static class SelectorFactory
 	{
-		internal static void CreateSelectors(Assembly assembly, Type rootType)
+		public static void CreateSelectors(Assembly assembly, Type rootType)
 		{
 			var selectors = new Dictionary<Type, object>();
 			var curAssembly = Assembly.GetExecutingAssembly();
@@ -27,7 +27,6 @@ namespace ReduxSharp.Store.Selectors
 
 				foreach (var method in methods)
 				{
-					var methodAttr = method.GetCustomAttribute<QueryAttribute>();
 					var parameters = method.GetParameters();
 
 					List<Type> genericTypes = new List<Type>();
@@ -51,16 +50,16 @@ namespace ReduxSharp.Store.Selectors
 							foreach (var parameter in parameters)
 							{
 								var paramQueryType = parameter.GetCustomAttribute<QueryAttribute>()?.MarkerType ?? parameter.ParameterType;
-								inputTypes.Add(paramQueryType);
+								inputTypes.Add(parameter.ParameterType);
 								genericTypes.Add(parameter.ParameterType);
 								args.Add(selectors[paramQueryType]);
 							}
 							break;
 					}
 
-					if (genericTypes.FirstOrDefault() != stateType)
+					if (genericTypes.FirstOrDefault() != rootType)
 					{
-						genericTypes.Insert(0, stateType);
+						genericTypes.Insert(0, rootType);
 					}
 
 					inputTypes.Add(method.ReturnType);
@@ -89,7 +88,7 @@ namespace ReduxSharp.Store.Selectors
 			ExchangeStorage.Selectors = selectors;
 		}
 
-		private static object CreateRootSelector(Type rootType, Type stateType)
+		public static object CreateRootSelector(Type rootType, Type stateType)
 		{
 			if (rootType == stateType)
 			{
