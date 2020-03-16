@@ -4,14 +4,14 @@ using ReduxSharp.Store.Selectors;
 namespace ReduxSharp.Store.Actions
 {
 	public interface IStateContext<TState>
-		where TState : class, ICloneable, new()
+		where TState : class, ICloneable<TState>, new()
 	{
 		TState GetState();
 		void SetState(TState state);
 	}
 
 	internal class StateContext<TRoot> : IStateContext<TRoot>
-		where TRoot : class, ICloneable, new ()
+		where TRoot : class, ICloneable<TRoot>, new ()
 	{
 		private readonly Store<TRoot> _store;
 
@@ -32,8 +32,8 @@ namespace ReduxSharp.Store.Actions
 	}
 
 	internal class StateContext<TRoot, TState> : IStateContext<TState>
-		where TRoot : class, ICloneable, new()
-		where TState : class, ICloneable, new()
+		where TRoot : class, ICloneable<TRoot>, new()
+		where TState : class, ICloneable<TState>, new()
 	{
 		private readonly Store<TRoot> _store;
 		private readonly ISelector<TRoot, TState> _selector;

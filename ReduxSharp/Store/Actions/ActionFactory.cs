@@ -10,7 +10,7 @@ namespace ReduxSharp.Store.Actions
 {
 	internal static class ActionFactory
 	{
-		internal static void CreateActions<TRoot>(Store<TRoot> store) where TRoot : class, ICloneable, new()
+		internal static void CreateActions<TRoot>(Store<TRoot> store) where TRoot : class, ICloneable<TRoot>, new()
 		{
 			var rootType = typeof(TRoot);
 			var stateTypes = rootType.Assembly.DefinedTypes.Where(type => type.GetCustomAttribute<StateAttribute>() != null);
@@ -45,7 +45,7 @@ namespace ReduxSharp.Store.Actions
 		}
 
 		private static object CreateContext<TRoot>(Store<TRoot> store, Type stateType)
-			where TRoot : class, ICloneable, new()
+			where TRoot : class, ICloneable<TRoot>, new()
 		{
 			var rootType = typeof(TRoot);
 			Type contextType;

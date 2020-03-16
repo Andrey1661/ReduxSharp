@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using ReduxSharp.Store;
 
 namespace ReduxSharp.TestSet2
 {
-	public class AppStateModel2 : ICloneable
+	public class AppStateModel2 : ICloneable<AppStateModel2>
 	{
 		public AppStateModel2()
 		{
@@ -23,9 +24,14 @@ namespace ReduxSharp.TestSet2
 		public string[] Names { get; }
 		public IReadOnlyDictionary<string, object> KeyValues { get; }
 
-		public object Clone()
+		public AppStateModel2 Clone()
 		{
 			return new AppStateModel2(Counter, Names, KeyValues);
+		}
+
+		object ICloneable.Clone()
+		{
+			return Clone();
 		}
 	}
 }

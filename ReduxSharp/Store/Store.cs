@@ -6,11 +6,10 @@ using ReduxSharp.Store.Selectors;
 
 namespace ReduxSharp.Store
 {
-	public class Store<TState> where TState : class, ICloneable, new()
+	public class Store<TState> where TState : class, ICloneable<TState>, new()
 	{
 		private readonly BehaviorSubject<TState> _observableState;
-
-		internal StoreContext Context { get; }
+		private TState _tempState;
 
 		public Store(TState initialState = null)
 		{
@@ -20,7 +19,7 @@ namespace ReduxSharp.Store
 			_observableState = new BehaviorSubject<TState>(initialState ?? new TState());
 		}
 
-		#region public methdos
+		#region public members
 
 		public IObservable<TState> Select()
 		{
@@ -50,15 +49,35 @@ namespace ReduxSharp.Store
 		public void Dispatch<T>(IAction<T> action)
 		{
 			var reducers = Context.ActionHandlers[action.GetType()];
-			foreach (var reducer in reducers)
+			using (new DispatchSequence<TState>(this))
 			{
-				reducer(action);
+				foreach (var reducer in reducers)
+				{
+					reducer(action);
+				}
 			}
 		}
 
 		#endregion
 
-		#region internal methods
+		#region internal members
+
+		internal StoreContext Context { get; }
+
+		internal bool SequenceDispatchMode
+		{
+			set
+			{
+				if (value)
+				{
+					_tempState = _observableState.Value;
+				}
+				else
+				{
+					_observableState.OnNext(_tempState);
+				}
+			}
+		}
 
 		internal TResult Snapshot<TResult>(ISelector<TState, TResult> selector)
 		{
@@ -67,17 +86,17 @@ namespace ReduxSharp.Store
 
 		internal TState GetState()
 		{
-			return _observableState.Value;
+			return _tempState.Clone();
 		}
 
 		internal void SetState(TState state)
 		{
-			_observableState.OnNext(state);
+			_tempState = state;
 		}
 
 		#endregion
 
-		#region private methods
+		#region private members
 
 		private ISelector<TState, TResult> GetSelector<TResult>(IQuery<TResult> marker)
 		{

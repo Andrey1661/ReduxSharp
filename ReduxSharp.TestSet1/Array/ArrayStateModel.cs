@@ -1,8 +1,9 @@
 ﻿using System;
+using ReduxSharp.Store;
 
 namespace ReduxSharp.TestSet1.Array
 {
-	public class ArrayStateModel : ICloneable
+	public class ArrayStateModel : ICloneable<ArrayStateModel>
 	{
 		public ArrayStateModel()
 		{
@@ -16,9 +17,14 @@ namespace ReduxSharp.TestSet1.Array
 
 		public string[] Names { get; }
 
-		public object Clone()
+		public ArrayStateModel Clone()
 		{
 			return new ArrayStateModel(Names);
+		}
+
+		object ICloneable.Clone()
+		{
+			return Clone();
 		}
 	}
 }

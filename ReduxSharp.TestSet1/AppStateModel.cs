@@ -1,11 +1,12 @@
 ﻿using System;
+using ReduxSharp.Store;
 using ReduxSharp.TestSet1.Array;
 using ReduxSharp.TestSet1.Config;
 using ReduxSharp.TestSet1.Counter;
 
 namespace ReduxSharp.TestSet1
 {
-	public class AppStateModel1 : ICloneable
+	public class AppStateModel1 : ICloneable<AppStateModel1>
 	{
 		public AppStateModel1()
 		{
@@ -27,9 +28,14 @@ namespace ReduxSharp.TestSet1
 		public ConfigStateModel Config { get; }
 		public string Value { get; }
 
-		public object Clone()
+		public AppStateModel1 Clone()
 		{
 			return new AppStateModel1(Counter, Array, Config);
+		}
+
+		object ICloneable.Clone()
+		{
+			return Clone();
 		}
 	}
 }

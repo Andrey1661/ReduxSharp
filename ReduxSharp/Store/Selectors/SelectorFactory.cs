@@ -10,7 +10,7 @@ namespace ReduxSharp.Store.Selectors
 	internal static class SelectorFactory
 	{
 		public static void CreateSelectors<TRoot>(Store<TRoot> store)
-			where TRoot : class, ICloneable, new ()
+			where TRoot : class, ICloneable<TRoot>, new ()
 		{
 			var rootType = typeof(TRoot);
 			var selectors = new Dictionary<Type, object>();

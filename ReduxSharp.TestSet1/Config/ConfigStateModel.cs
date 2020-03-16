@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using ReduxSharp.Store;
 
 namespace ReduxSharp.TestSet1.Config
 {
-	public class ConfigStateModel : ICloneable
+	public class ConfigStateModel : ICloneable<ConfigStateModel>
 	{
 		public ConfigStateModel()
 		{
@@ -18,9 +19,14 @@ namespace ReduxSharp.TestSet1.Config
 
 		public ReadOnlyDictionary<string, object> KeyValues { get; }
 
-		public object Clone()
+		public ConfigStateModel Clone()
 		{
 			return new ConfigStateModel(KeyValues);
+		}
+
+		object ICloneable.Clone()
+		{
+			return Clone();
 		}
 	}
 }

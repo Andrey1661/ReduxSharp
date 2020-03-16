@@ -1,8 +1,9 @@
 ﻿using System;
+using ReduxSharp.Store;
 
 namespace ReduxSharp.TestSet1.Counter
 {
-	public class CounterStateModel : ICloneable
+	public class CounterStateModel : ICloneable<CounterStateModel>
 	{
 		public CounterStateModel()
 		{
@@ -16,9 +17,14 @@ namespace ReduxSharp.TestSet1.Counter
 
 		public int Value { get; }
 
-		public object Clone()
+		public CounterStateModel Clone()
 		{
 			return new CounterStateModel(Value);
+		}
+
+		object ICloneable.Clone()
+		{
+			return Clone();
 		}
 	}
 }
