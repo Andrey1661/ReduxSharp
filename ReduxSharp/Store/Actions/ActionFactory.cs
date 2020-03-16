@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using ReduxSharp.Store.Attributes;
 using ReduxSharp.Store.Selectors;
 
@@ -13,7 +15,7 @@ namespace ReduxSharp.Store.Actions
 		internal static void CreateActions<TRoot>(Store<TRoot> store) where TRoot : class, ICloneable<TRoot>, new()
 		{
 			var rootType = typeof(TRoot);
-			var stateTypes = rootType.Assembly.DefinedTypes.Where(type => type.GetCustomAttribute<StateAttribute>() != null);
+			var stateTypes = rootType.Assembly.DefinedTypes.Where(type => Attribute.IsDefined(type, typeof(StateAttribute)));
 			var result = new List<(Type type, Action<object> actions)>();
 
 			foreach (var stateType in stateTypes)
@@ -23,9 +25,18 @@ namespace ReduxSharp.Store.Actions
 				var contextInstance = CreateContext(store, stateAttr.StateType);
 				var contextType = contextInstance.GetType().GetInterfaces().First();
 
-				foreach (var method in stateType.DeclaredMethods.Where(m => m.IsPublic && m.GetCustomAttribute<ActionAttribute>() != null))
+				foreach (var method in stateType.DeclaredMethods.Where(m =>
+					m.IsPublic && Attribute.IsDefined(m, typeof(ActionAttribute))))
 				{
 					var attr = method.GetCustomAttribute<ActionAttribute>();
+
+					if (attr is EffectAttribute effectAttr)
+					{
+						var effectHandler = CreateEffectHandler(method, stateInstance, contextInstance, effectAttr);
+						result.Add((attr.ActionType, effectHandler));
+						continue;
+					}
+
 					var isGeneric = attr.ActionType.GetInterfaces().First().IsGenericType;
 					var delegateType = isGeneric
 						? typeof(Action<,>).MakeGenericType(contextType, attr.ActionType)
@@ -42,6 +53,35 @@ namespace ReduxSharp.Store.Actions
 			}
 
 			store.Context.ActionHandlers = result.ToLookup(pair => pair.type, pair => pair.actions);
+		}
+
+		private static Action<object> CreateEffectHandler(MethodInfo method, object stateInstance, object contextInstance, EffectAttribute attr)
+		{
+			bool isAsync = Attribute.IsDefined(method, typeof(AsyncStateMachineAttribute));
+			var delType = isAsync
+				? typeof(Func<,,>).MakeGenericType(contextInstance.GetType(), attr.ActionType, typeof(Task))
+				: typeof(Action<,>).MakeGenericType(contextInstance.GetType(), attr.ActionType);
+			var del = Delegate.CreateDelegate(delType, stateInstance, method);
+
+			return isAsync ? (Action<object>)Handler : AsyncHandler;
+
+			void Handler(object action)
+			{
+				del.DynamicInvoke(contextInstance, action);
+			}
+
+			async void AsyncHandler(object action)
+			{
+				try
+				{
+					await ((Task)del.DynamicInvoke(contextInstance, action)).ConfigureAwait(false);
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e);
+					throw;
+				}
+			}
 		}
 
 		private static object CreateContext<TRoot>(Store<TRoot> store, Type stateType)

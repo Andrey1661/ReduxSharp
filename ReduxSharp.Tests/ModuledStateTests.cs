@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using System.Threading.Tasks;
 using ReduxSharp.Store;
 using ReduxSharp.TestSet1;
 using ReduxSharp.TestSet1.Array;
@@ -52,6 +55,16 @@ namespace ReduxSharp.Tests
 
 			Assert.Equal(reversed, names);
 			Assert.Equal("name3", name);
+		}
+
+		[Fact]
+		public void Test2()
+		{
+			var store = CreateStore();
+			var task = store.Select(new CounterQuery.GetValue()).Skip(1).ToTask();
+			store.Dispatch(new CounterState.SetCounter(10));
+			task.Wait();
+			Assert.Equal(9, task.GetAwaiter().GetResult());
 		}
 	}
 }

@@ -94,6 +94,15 @@ namespace ReduxSharp.Store
 			_tempState = state;
 		}
 
+		internal void DispatchInternal<T>(IAction<T> action)
+		{
+			var reducers = Context.ActionHandlers[action.GetType()];
+			foreach (var reducer in reducers)
+			{
+				reducer(action);
+			}
+		}
+
 		#endregion
 
 		#region private members
