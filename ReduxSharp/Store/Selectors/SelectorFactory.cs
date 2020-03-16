@@ -15,7 +15,7 @@ namespace ReduxSharp.Store.Selectors
 			var rootType = typeof(TRoot);
 			var selectors = new Dictionary<Type, object>();
 			var curAssembly = Assembly.GetExecutingAssembly();
-			var funcTypes = Assembly.GetAssembly(typeof(Func<>))
+			var funcTypes = typeof(Func<>).Assembly
 				.ExportedTypes.Where(t => t.Name.StartsWith("Func"))
 				.OrderBy(t => t.GenericTypeArguments.Length).ToList();
 			var queryTypes = rootType.Assembly.DefinedTypes.Where(type => type.GetCustomAttribute<QueryAttribute>() != null);

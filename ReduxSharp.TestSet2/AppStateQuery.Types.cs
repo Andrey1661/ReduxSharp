@@ -10,5 +10,6 @@ namespace ReduxSharp.TestSet2
 		public class GetNames : IQuery<string[]> { }
 		public class GetName : IQuery<string> { }
 		public class GetConfig : IQuery<IReadOnlyDictionary<string, object>> { }
+		public class GetCounterSum : IQuery<int> { }
 	}
 }

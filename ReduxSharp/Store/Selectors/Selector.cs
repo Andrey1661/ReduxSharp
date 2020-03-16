@@ -236,4 +236,128 @@ namespace ReduxSharp.Store.Selectors
 				.DistinctUntilChanged();
 		}
 	}
+
+	internal class Selector<TState, TRes1, TRes2, TRes3, TRes4, TRes5, TRes6, TResult> : ISelector<TState, TResult>
+	{
+		private readonly Func<TRes1, TRes2, TRes3, TRes4, TRes5, TRes6, TResult> _selectorFunc;
+		private readonly ISelector<TState, TRes1> _selector1;
+		private readonly ISelector<TState, TRes2> _selector2;
+		private readonly ISelector<TState, TRes3> _selector3;
+		private readonly ISelector<TState, TRes4> _selector4;
+		private readonly ISelector<TState, TRes5> _selector5;
+		private readonly ISelector<TState, TRes6> _selector6;
+
+		public Selector(
+			ISelector<TState, TRes1> selector1,
+			ISelector<TState, TRes2> selector2,
+			ISelector<TState, TRes3> selector3,
+			ISelector<TState, TRes4> selector4,
+			ISelector<TState, TRes5> selector5,
+			ISelector<TState, TRes6> selector6,
+			Func<TRes1, TRes2, TRes3, TRes4, TRes5, TRes6, TResult> selectorFunc)
+		{
+			_selector1 = selector1;
+			_selector2 = selector2;
+			_selector3 = selector3;
+			_selector4 = selector4;
+			_selector5 = selector5;
+			_selector6 = selector6;
+			_selectorFunc = selectorFunc;
+		}
+
+		public TResult Apply(TState arg)
+		{
+			var res1 = _selector1.Apply(arg);
+			var res2 = _selector2.Apply(arg);
+			var res3 = _selector3.Apply(arg);
+			var res4 = _selector4.Apply(arg);
+			var res5 = _selector5.Apply(arg);
+			var res6 = _selector6.Apply(arg);
+			return _selectorFunc(res1, res2, res3, res4, res5, res6);
+		}
+
+		public IObservable<TResult> Apply(IObservable<TState> arg)
+		{
+			return _selector1.Apply(arg).CombineLatest(
+					_selector2.Apply(arg),
+					_selector3.Apply(arg),
+					_selector4.Apply(arg),
+					_selector5.Apply(arg),
+					_selector6.Apply(arg),
+					Tuple.Create)
+				.Select(res => _selectorFunc(
+					res.Item1,
+					res.Item2,
+					res.Item3,
+					res.Item4,
+					res.Item5,
+					res.Item6))
+				.DistinctUntilChanged();
+		}
+	}
+
+	internal class Selector<TState, TRes1, TRes2, TRes3, TRes4, TRes5, TRes6, TRes7, TResult> : ISelector<TState, TResult>
+	{
+		private readonly Func<TRes1, TRes2, TRes3, TRes4, TRes5, TRes6, TRes7, TResult> _selectorFunc;
+		private readonly ISelector<TState, TRes1> _selector1;
+		private readonly ISelector<TState, TRes2> _selector2;
+		private readonly ISelector<TState, TRes3> _selector3;
+		private readonly ISelector<TState, TRes4> _selector4;
+		private readonly ISelector<TState, TRes5> _selector5;
+		private readonly ISelector<TState, TRes6> _selector6;
+		private readonly ISelector<TState, TRes7> _selector7;
+
+		public Selector(
+			ISelector<TState, TRes1> selector1,
+			ISelector<TState, TRes2> selector2,
+			ISelector<TState, TRes3> selector3,
+			ISelector<TState, TRes4> selector4,
+			ISelector<TState, TRes5> selector5,
+			ISelector<TState, TRes6> selector6,
+			ISelector<TState, TRes7> selector7,
+			Func<TRes1, TRes2, TRes3, TRes4, TRes5, TRes6, TRes7, TResult> selectorFunc)
+		{
+			_selector1 = selector1;
+			_selector2 = selector2;
+			_selector3 = selector3;
+			_selector4 = selector4;
+			_selector5 = selector5;
+			_selector6 = selector6;
+			_selector7 = selector7;
+			_selectorFunc = selectorFunc;			
+		}
+
+		public TResult Apply(TState arg)
+		{
+			var res1 = _selector1.Apply(arg);
+			var res2 = _selector2.Apply(arg);
+			var res3 = _selector3.Apply(arg);
+			var res4 = _selector4.Apply(arg);
+			var res5 = _selector5.Apply(arg);
+			var res6 = _selector6.Apply(arg);
+			var res7 = _selector7.Apply(arg);
+			return _selectorFunc(res1, res2, res3, res4, res5, res6, res7);
+		}
+
+		public IObservable<TResult> Apply(IObservable<TState> arg)
+		{
+			return _selector1.Apply(arg).CombineLatest(
+					_selector2.Apply(arg),
+					_selector3.Apply(arg),
+					_selector4.Apply(arg),
+					_selector5.Apply(arg),
+					_selector6.Apply(arg),
+					_selector7.Apply(arg),
+					Tuple.Create)
+				.Select(res => _selectorFunc(
+					res.Item1,
+					res.Item2,
+					res.Item3,
+					res.Item4,
+					res.Item5,
+					res.Item6,
+					res.Item7))
+				.DistinctUntilChanged();
+		}
+	}
 }
