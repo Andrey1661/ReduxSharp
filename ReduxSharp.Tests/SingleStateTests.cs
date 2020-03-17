@@ -57,7 +57,7 @@ namespace ReduxSharp.Tests
 		{
 			int sum = 0;
 
-			Store.Select(new AppStateQuery.GetCounterSum()).Subscribe(s => sum = s);
+			Store.Select(AppStateQuery.GetCounterSum.Default).Subscribe(s => sum = s);
 			Assert.Equal(14, sum);
 
 			Store.Dispatch(new AppState.SetCounter(3));

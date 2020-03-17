@@ -37,8 +37,8 @@ namespace ReduxSharp.Store.Actions
 						continue;
 					}
 
-					var isGeneric = attr.ActionType.GetInterfaces().First().IsGenericType;
-					var delegateType = isGeneric
+					var hasActionArg = method.GetParameters().Length == 2;
+					var delegateType = hasActionArg
 						? typeof(Action<,>).MakeGenericType(contextType, attr.ActionType)
 						: typeof(Action<>).MakeGenericType(contextType);
 					var del = Delegate.CreateDelegate(delegateType, stateInstance, method);

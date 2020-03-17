@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using ReduxSharp.Store.Actions;
 
 namespace ReduxSharp.TestSet2
 {
 	public partial class AppState
 	{
-		public class SetCounter : IAction<int>
+		public class SetCounter : IAction
 		{
 			public SetCounter(int payload)
 			{
@@ -20,7 +18,7 @@ namespace ReduxSharp.TestSet2
 		public class Increment : IAction { }
 		public class Decrement : IAction { }
 
-		public class SetNames : IAction<string[]> 
+		public class SetNames : IAction 
 		{
 			public SetNames(string[] payload)
 			{
@@ -30,7 +28,7 @@ namespace ReduxSharp.TestSet2
 			public string[] Payload { get; }
 		}
 
-		public class SetConfig : IAction<IReadOnlyDictionary<string, object>>
+		public class SetConfig : IAction
 		{
 			public SetConfig(IReadOnlyDictionary<string, object> payload)
 			{

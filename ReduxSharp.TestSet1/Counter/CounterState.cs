@@ -25,17 +25,23 @@ namespace ReduxSharp.TestSet1.Counter
 			context.SetState(new CounterStateModel(context.GetState().Value - 1));
 		}
 
-		[Effect(typeof(SetCounterRequested))]
-		public async Task OnSetCounterEffect(IStateContext<CounterStateModel> context, SetCounterRequested action)
+		[Effect(typeof(SetCounterAsync), EffectStage.Request)]
+		public bool OnSetCounterRequest(IStateContext<CounterStateModel> context, SetCounterAsync action)
 		{
-			await Task.Delay(200);
-			context.Dispatch(new SetCounterSuccess(action));
+			return action.Payload != 10;
 		}
 
-		[Action(typeof(SetCounterSuccess))]
-		public void OnSetCounterSuccess(IStateContext<CounterStateModel> context, SetCounterSuccess action)
+		[Effect(typeof(SetCounterAsync), EffectStage.Effect)]
+		public async Task<int> OnSetCounterEffect(IStateContext<CounterStateModel> context, SetCounterAsync action)
 		{
-			context.SetState(new CounterStateModel(action.Payload.Payload));
+			await Task.Delay(100);
+			return action.Payload;
+		}
+
+		[Effect(typeof(SetCounterAsync), EffectStage.Success)]
+		public void OnSetCounterSuccess(IStateContext<CounterStateModel> context, int result)
+		{
+			context.SetState(new CounterStateModel(result));
 		}
 	}
 }

@@ -4,7 +4,7 @@ namespace ReduxSharp.TestSet1.Counter
 {
 	public partial class CounterState
 	{
-		public class SetCounter : IAction<int>
+		public class SetCounter : IAction
 		{
 			public SetCounter(int payload)
 			{
@@ -14,24 +14,14 @@ namespace ReduxSharp.TestSet1.Counter
 			public int Payload { get; }
 		}
 
-		public class SetCounterRequested : IAction<int>
+		public class SetCounterAsync : IAction
 		{
-			public SetCounterRequested(int payload)
+			public SetCounterAsync(int payload)
 			{
 				Payload = payload;
 			}
 
 			public int Payload { get; }
-		}
-
-		public class SetCounterSuccess : IAction<SetCounterRequested>
-		{
-			public SetCounterSuccess(SetCounterRequested payload)
-			{
-				Payload = payload;
-			}
-
-			public SetCounterRequested Payload { get; }
 		}
 
 		public class Increment : IAction { }

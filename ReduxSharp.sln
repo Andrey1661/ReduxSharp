@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReduxSharp.Tests", "ReduxSh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReduxSharp.TestSet1", "ReduxSharp.TestSet1\ReduxSharp.TestSet1.csproj", "{70663FC7-4A02-4208-BAD6-598509EF7A07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReduxSharp.TestSet2", "ReduxSharp.TestSet2\ReduxSharp.TestSet2.csproj", "{E78D5107-9A15-4B70-B251-F1B173DF3AFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReduxSharp.TestSet2", "ReduxSharp.TestSet2\ReduxSharp.TestSet2.csproj", "{E78D5107-9A15-4B70-B251-F1B173DF3AFC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

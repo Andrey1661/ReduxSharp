@@ -5,11 +5,11 @@ namespace ReduxSharp.TestSet2
 {
 	public static partial class AppStateQuery
 	{
-		public class GetState : IQuery<AppStateModel2> { }
-		public class GetCounter : IQuery<int> { }
-		public class GetNames : IQuery<string[]> { }
-		public class GetName : IQuery<string> { }
-		public class GetConfig : IQuery<IReadOnlyDictionary<string, object>> { }
-		public class GetCounterSum : IQuery<int> { }
+		public class GetState : Query<GetState, AppStateModel2> { }
+		public class GetCounter : Query<GetCounter, int> { }
+		public class GetNames : Query<GetNames, string[]> { }
+		public class GetName : Query<GetName, string> { }
+		public class GetConfig : Query<GetConfig, IReadOnlyDictionary<string, object>> { }
+		public class GetCounterSum : Query<GetCounterSum, int> { }
 	}
 }

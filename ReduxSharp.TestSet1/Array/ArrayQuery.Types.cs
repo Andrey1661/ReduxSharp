@@ -4,8 +4,8 @@ namespace ReduxSharp.TestSet1.Array
 {
 	public static partial class ArrayQuery
 	{
-		public class GetState : IQuery<ArrayStateModel> { }
-		public class GetNames : IQuery<string[]> { }
-		public class GetName : IQuery<string> { }
+		public class GetState : Query<GetState, ArrayStateModel> { }
+		public class GetNames : Query<GetNames, string[]> { }
+		public class GetName : Query<GetName, string> { }
 	}
 }

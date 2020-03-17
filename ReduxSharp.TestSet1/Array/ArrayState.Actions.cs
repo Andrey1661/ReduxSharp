@@ -5,7 +5,7 @@ namespace ReduxSharp.TestSet1.Array
 {
 	public partial class ArrayState
 	{
-		public class SetNames : IAction<IEnumerable<string>>
+		public class SetNames : IAction
 		{
 			public SetNames(IEnumerable<string> names)
 			{

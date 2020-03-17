@@ -7,7 +7,7 @@ namespace ReduxSharp.Store.Actions
 		where TState : class, ICloneable<TState>, new()
 	{
 		TState GetState();
-		void Dispatch<T>(IAction<T> action);
+		void Dispatch(IAction action);
 		void SetState(TState state);
 	}
 
@@ -31,9 +31,9 @@ namespace ReduxSharp.Store.Actions
 			_store.SetState(state);
 		}
 
-		public void Dispatch<T>(IAction<T> action)
+		public void Dispatch(IAction action)
 		{
-			_store.DispatchInternal(action);
+			_store.Dispatch(action);
 		}
 	}
 
@@ -66,9 +66,9 @@ namespace ReduxSharp.Store.Actions
 			_store.SetState(root);
 		}
 
-		public void Dispatch<T>(IAction<T> action)
+		public void Dispatch(IAction action)
 		{
-			_store.DispatchInternal(action);
+			_store.Dispatch(action);
 		}
 	}
 }
